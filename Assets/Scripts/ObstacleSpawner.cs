@@ -3,13 +3,15 @@ using UnityEngine;
 public class ObstacleSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject[] obstaclePrefubs;
+    [SerializeField] private float obstacleSpeed;
 
     [SerializeField,Tooltip("Ÿ‚ÌáŠQ•¨‚Ü‚Å‚ÌÅ¬ŠÔ")] private float minSpawnTime;
     [SerializeField,Tooltip("Ÿ‚ÌáŠQ•¨‚Ü‚Å‚ÌÅ’·ŠÔ")] private float maxSpawnTime;
     private float nextSpawnTime = 0f;
-    private float timer = 0f;
+    private float spawnTimer = 0f;
 
-    [SerializeField] private float speed;
+    [SerializeField] private float playTimer = 0f;
+    [SerializeField] private float speedPreSet;
 
     [SerializeField] private Transform spawnPoint;
 
@@ -20,13 +22,22 @@ public class ObstacleSpawner : MonoBehaviour
 
     private void Update()
     {
-        timer += Time.deltaTime;
+        playTimer += Time.deltaTime;
 
-        if (timer >= nextSpawnTime)
+        SpawnSystem();
+        ObstacleSpeedUpdate();
+    }
+
+    /// <summary> ¶¬ƒƒ\ƒbƒh‚ğ“Š‡‚µ‚Ä‚é‚Æ‚±‚ë </summary>
+    private void SpawnSystem()
+    {
+        spawnTimer += Time.deltaTime;
+
+        if (spawnTimer >= nextSpawnTime)
         {
             SpawnObstacle();
             SetNextSpawnTime();
-            timer = 0f;
+            spawnTimer = 0f;
         }
     }
 
@@ -42,12 +53,23 @@ public class ObstacleSpawner : MonoBehaviour
         // áŠQ•¨‚ğ¶¬
         GameObject obstacle = Instantiate(chooseObstacle, spawnPos, Quaternion.identity);
 
-        //obstacle.AddComponent<MoveLeft>().speed = moveSpeed;
+        obstacle.AddComponent<ObstacleMove>().speed = obstacleSpeed;
     }
 
     /// <summary> Ÿ‚ÌáŠQ•¨‚Ü‚Å‚ÌŠÔ‚ğÄİ’è </summary>
     private void SetNextSpawnTime()
     {
-        nextSpawnTime = Random.Range(minSpawnTime, maxSpawnTime);
+        float t = Mathf.Clamp01((obstacleSpeed - speedPreSet) / speedPreSet);
+
+        float currentMin = Mathf.Lerp(minSpawnTime, minSpawnTime / 2f, t);
+        float currentMax = Mathf.Lerp(maxSpawnTime, maxSpawnTime / 3f, t);
+
+
+        nextSpawnTime = Random.Range(currentMin, currentMax);
+    }
+
+    private void ObstacleSpeedUpdate()
+    {
+        obstacleSpeed = speedPreSet + (playTimer / 60f);
     }
 }

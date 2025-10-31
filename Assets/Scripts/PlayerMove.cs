@@ -19,7 +19,7 @@ public class PlayerMove : MonoBehaviour
     {
         if (isGround && Input.GetKeyDown(KeyCode.Space))
         {
-            rb.AddForce(Vector2.up * jumpForce);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             isGround = false;
         }
 
